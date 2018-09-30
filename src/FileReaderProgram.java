@@ -24,7 +24,6 @@ class FileReaderProgram {
 		for(File tempFile : fileList) {
 			if(tempFile.isFile()) {
 				String tempFileName=tempFile.getName();
-				System.out.println(dirFile + tempFileName);
 
 				File curFile = new File(dirFile + "/" + tempFileName);
 
@@ -77,16 +76,16 @@ class FileReaderProgram {
 		return fileLine;
 	}
 	
-	String adjustLine(String curline) {
+	String adjustLine(String curLine) {
 		
 		int start = 0;
 		int end = 0;
 		
 		char curChar = ' ';
 				
-		for(int i=0; i<curline.length(); i++) {
+		for(int i=0; i<curLine.length(); i++) {
 			
-			curChar = curline.charAt(i);
+			curChar = curLine.charAt(i);
 			
 			if (curChar == '<') {
 				start = i;
@@ -95,14 +94,14 @@ class FileReaderProgram {
 			else if (curChar == '>') {
 				end = i;
 				
-				String replaceString = curline.substring(0, start) + curline.substring(end+1, curline.length());
-				curline = replaceString;
+				String replaceString = curLine.substring(0, start) + curLine.substring(end+1, curLine.length());
+				curLine = replaceString;
 				
 				i = start;
 			}
 			
 		}
 		
-		return curline;
+		return curLine;
 	}
 }
