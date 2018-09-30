@@ -17,10 +17,13 @@ class Document {
 	String contents;
 	int docID;
 	
-	
 	public Document(String pageName, int docID) {
 		this.pageName = pageName;
 		this.docID = docID;
+	}
+	
+	void addContent(String newContents) {
+		contents += newContents;
 	}
 }
 
