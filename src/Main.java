@@ -3,7 +3,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		Program program = new Program();
+		Mechanism program = new Mechanism();
 		program.programExecute();
 	}
 }

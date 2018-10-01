@@ -4,14 +4,15 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 import java.util.Scanner;
 
-class Program {
+class Mechanism {
 
 	Iterator<?> docsItr = null;
 	LinkedList<Document> docs = new LinkedList<>(); 
 	LinkedList<Integer> tempList = null;
 	HashMap<String, LinkedList<Integer>> posts = new HashMap<>();
 	FileReaderProgram reader = new FileReaderProgram(docs);
-
+	TreeSet<String> allVocas = new TreeSet<>();
+	
 	Scanner in = new Scanner(System.in);
 
 	double avg = 0.0;
@@ -122,11 +123,24 @@ class Program {
 	}
 
 	public void programExecute() {
+		
 		reader.execute();
-
 		makeDic();
 		getDocStatistic();
 
+		Iterator<String> itr = allVocas.iterator();
+		int count = 0;
+		
+		while(itr.hasNext()) {
+			System.out.print(itr.next() + " ");
+			count++;
+			if(count == 4) {
+				System.out.println();
+				count = 0;
+			}
+		}
+		System.out.println();
+		
 		HCI();
 	}
 
@@ -165,7 +179,7 @@ class Program {
 			Document curDoc = docs.get(i);
 
 			String[] tempVocas = curDoc.getContents().split
-					("\\'|\\?|\"|\\.\\.|\\[|\\]|\\{|\\}|\\(|\\)|\\. |\\.\n| |\\, |\n|!");
+					("\\*|\\-\\-|\\_|\\;|\\:|\\'|\\?|\"|\\.\\.|\\[|\\]|\\{|\\}|\\(|\\)|\\.\n| |\\, |\n|!");
 
 			LinkedList<String> contentVocas = new LinkedList<>();
 
@@ -180,6 +194,7 @@ class Program {
 
 				String curString = contentVocas.get(j);
 				curDoc.dictionary.add(curString);
+				allVocas.add(curString);
 			}
 
 			docsItr = curDoc.dictionary.iterator();
@@ -209,24 +224,36 @@ class Program {
 
 			String curString = contentVocas.get(i);
 
-			if(curString.compareTo("") == 0) {
-				contentVocas.remove(i);
-				i--;
-				continue;
-			}
-
 			for(int j=0; j<curString.length(); j++) {
 
 				char curChar = curString.charAt(j);
 
+				if(Character.isUpperCase(curChar)) {
+					curString = curString.replace(curChar, Character.toLowerCase(curChar));
+					curChar = Character.toLowerCase(curChar);
+				}
+				
+				if(curChar == '.' || curChar == '/') {
+					if(j == curString.length()-1) {
+						curString = curString.substring(0, j);
+						j--; continue;
+					}
+					else if(j == 0 && curString.length() != 1) {
+						curString = curString.substring(1, curString.length());
+						j--; continue;
+					}
+				}
+
 				if(curChar == ',') {
 					if(digitPrivi && j != curString.length()-1 && Character.isDigit(curString.charAt(j+1))) {
 						curString = curString.substring(0, j) + curString.substring(j+1, curString.length());
+						j--; continue;
 					}
 
 					if(!digitPrivi || j != curString.length()-1 && !Character.isDigit(curString.charAt(j+1))) {
 						contentVocas.add(curString.substring(j+1, curString.length()));
 						curString = curString.substring(0, j);
+						j--; continue;
 					}
 				}
 
@@ -234,14 +261,21 @@ class Program {
 						j != curString.length()-1) {
 					if(!digitPrivi || !Character.isDigit(curString.charAt(j+1))) {
 						curString = curString.substring(0, j) + curString.substring(j+1, curString.length());
+						j--; continue;
+					}
+					else {
+						String[] slashDivided = curString.split("\\/");
+						for(int k=0; k<slashDivided.length; k++)	contentVocas.add(slashDivided[k]);
 					}
 				}
 
-				if(Character.isUpperCase(curChar)) {
-					curString = curString.replace(curChar, Character.toLowerCase(curChar));
-				}
-
 				digitPrivi = Character.isDigit(curChar);
+			}
+			
+			if(curString.compareTo("") == 0) {
+				contentVocas.remove(i);
+				i--;
+				continue;
 			}
 
 			contentVocas.set(i, curString);
@@ -249,7 +283,5 @@ class Program {
 
 		return contentVocas;
 	}
-
-
 }
 
