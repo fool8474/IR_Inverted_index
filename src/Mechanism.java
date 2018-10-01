@@ -27,8 +27,6 @@ class Mechanism {
 		makeDic(); //make dic and postings lists
 		getDocStatistic();
 
-		showAllWords();
-		
 		HCI programHCI = new HCI(posts, docs); //doing search progress
 		programHCI.setHCINums(minNum, maxNum, minDocID, maxDocID, avg);
 		programHCI.HCIMap();
