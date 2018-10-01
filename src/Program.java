@@ -1,22 +1,45 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 class Program {
 
+	Iterator<?> docsItr = null;
 	LinkedList<Document> docs = new LinkedList<>(); 
-	Iterator itr = null;
+	LinkedList<Integer> tempList = null;
+	HashMap<String, LinkedList<Integer>> posts = new HashMap<>();
+	FileReaderProgram reader = new FileReaderProgram(docs);
 
-	public Program() { 
-		FileReaderProgram reader = new FileReaderProgram(docs);
+
+	void programExecute() {
 		reader.execute();
 
 		makeDic();
-
+		showDocInfor();
 	}
+
+	void showAllDocs() {
+		for(int i=0; i<docs.size(); i++) {
+			System.out.println(docs.get(i).pageName);
+			System.out.println(docs.get(i).getContents());
+		}
+	}	
+
+	void showDocInfor() {
+
+		double avg = 0.0;
+
+		for(int i=0; i<docs.size(); i++) {
+			avg += docs.get(i).dictionary.size();
+		}
+
+		System.out.println("문서의 수 : " + docs.size());
+		System.out.println("문서 당 평균 단어 수 : " + avg/docs.size());
+		System.out.println("최대 단어의 문서 : " );
+		System.out.println("최소 단어의 문서 : " );
+	}
+
 
 	void makeDic() {
 		for(int i=0; i<docs.size(); i++) {
@@ -33,19 +56,33 @@ class Program {
 
 			adjustVocas(contentVocas);
 
+
 			for(int j=0; j<contentVocas.size(); j++) {
-				curDoc.dictionary.add(contentVocas.get(j));
+
+				String curString = contentVocas.get(j);
+				curDoc.dictionary.add(curString);
 			}
 
-			itr = curDoc.dictionary.iterator();
+			docsItr = curDoc.dictionary.iterator();
 
-			while(itr.hasNext()) {
-				System.out.println(itr.next());
+			while(docsItr.hasNext()) {
+				String curString = (String)docsItr.next();
+
+				if(posts.containsKey(curString)) {
+					tempList = posts.get(curString);
+					tempList.add(curDoc.docID);
+				}
+
+				else {
+					tempList = new LinkedList<>();
+					tempList.add(curDoc.docID);
+					posts.put(curString, tempList);
+				}
 			}
 		}
 	}
 
-	LinkedList adjustVocas(LinkedList<String> contentVocas) {
+	LinkedList<String> adjustVocas(LinkedList<String> contentVocas) {
 
 		boolean digitPrivi = false;
 
@@ -53,20 +90,25 @@ class Program {
 
 			String curString = contentVocas.get(i);
 
-
-			if(curString.compareTo(" ") == 0) {
-
+			if(curString.compareTo("") == 0) {
+				contentVocas.remove(i);
+				i--;
+				continue;
 			}
 
 			for(int j=0; j<curString.length(); j++) {
 
 				char curChar = curString.charAt(j);
 
-				if(curChar == ',' && 
-						digitPrivi && 
-						j != curString.length()-1 &&
-						Character.isDigit(curString.charAt(j+1))) {
-					curString = curString.substring(0, j) + curString.substring(j+1, curString.length());
+				if(curChar == ',') {
+					if(digitPrivi && j != curString.length()-1 && Character.isDigit(curString.charAt(j+1))) {
+						curString = curString.substring(0, j) + curString.substring(j+1, curString.length());
+					}
+
+					if(!digitPrivi || j != curString.length()-1 && !Character.isDigit(curString.charAt(j+1))) {
+						contentVocas.add(curString.substring(j+1, curString.length()));
+						curString = curString.substring(0, j);
+					}
 				}
 
 				if(curChar == '/' && 
@@ -89,12 +131,6 @@ class Program {
 		return contentVocas;
 	}
 
-	void showAllDocs() {
 
-		for(int i=0; i<docs.size(); i++) {
-			System.out.println(docs.get(i).pageName);
-			System.out.println(docs.get(i).getContents());
-		}
-	}	
 }
 
