@@ -2,6 +2,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeSet;
+import java.util.Scanner;
 
 class Program {
 
@@ -11,37 +12,155 @@ class Program {
 	HashMap<String, LinkedList<Integer>> posts = new HashMap<>();
 	FileReaderProgram reader = new FileReaderProgram(docs);
 
+	Scanner in = new Scanner(System.in);
 
-	void programExecute() {
+	double avg = 0.0;
+	int minDocID = 0;
+	int maxDocID = 0;
+	int minNum = Integer.MAX_VALUE;
+	int maxNum = Integer.MIN_VALUE;
+
+	void HCI() {
+		while(true) {
+
+			menu(0);
+			int choice = in.nextInt(); in.nextLine();
+
+			switch(choice) {	
+			case 1 :
+				menu(1);
+				break;
+
+			case 2 :
+				String YN = "Y";
+				while(YN.compareTo("Y") == 0 || YN.compareTo("y") == 0) {
+					search();
+
+					System.out.println("More Search?(Y/N) : ");
+					YN = in.nextLine();
+				}
+
+				break;
+
+			case 3 : 
+				System.out.println("Quit Program");
+				return;
+
+			default :
+				System.out.println("Wrong Input!!");
+				break;
+
+			}
+		}
+	}
+
+	private void search() {
+		menu(2);
+		String searchWord = in.nextLine();
+
+		if(posts.containsKey(searchWord)) {
+			System.out.println("The Searching Result is...");
+
+			tempList = posts.get(searchWord);
+
+			System.out.print(tempList.size() + " found, " + searchWord + " : ");
+			for(int i=0; i<tempList.size(); i++) {
+				System.out.print(tempList.get(i) + " ");
+				if(i%30 == 0) System.out.println();
+			}
+			System.out.println();
+
+			while(true) {
+				menu(3);
+				int choice = in.nextInt(); in.nextLine();
+				if(choice == -1)
+					break;
+				if(choice < docs.size() && choice >= 0) {
+					showDoc(choice);
+				}
+				else {
+					System.out.println("Wrong docID...");
+				}
+			}
+		}
+
+		else { System.out.println("Nothing found in Result"); }
+
+	}
+
+	private void menu(int menuCase) {
+
+		switch(menuCase) {
+
+		case 0 : 
+
+			System.out.println("------------------------");
+			System.out.println("     Choice Menu");
+			System.out.println("     -----------");
+			System.out.println("   1.get Statistic");
+			System.out.println("      2.Search");
+			System.out.println("       3.Exit");
+			System.out.println("     -----------");
+			System.out.println("------------------------");
+			break;
+
+		case 1 :
+			System.out.println("Number of Docs : " + docs.size());
+			System.out.println("Average Words of Docs : " + avg/docs.size());
+			System.out.println("Max size of Doc Dictionary : " + maxDocID + ", Number of Words : " + maxNum);
+			System.out.println("Min Size of Doc Dictionary : " + minDocID + ", Number of Words : " + minNum);
+			break;
+
+		case 2 :
+			System.out.println("What are you searching for? ");
+			break;
+
+		case 3 :
+			System.out.print("Choose number which want to open (Exit : -1) : ");
+			break;
+		}
+	}
+
+	public void programExecute() {
 		reader.execute();
 
 		makeDic();
-		showDocInfor();
+		getDocStatistic();
+
+		HCI();
 	}
 
-	void showAllDocs() {
+	private void showDoc(int docID) {
+		System.out.println(docs.get(docID).pageName);
+		System.out.println(docs.get(docID).getContents());
+	}
+
+	private void showAllDocs() {
 		for(int i=0; i<docs.size(); i++) {
 			System.out.println(docs.get(i).pageName);
 			System.out.println(docs.get(i).getContents());
 		}
-	}	
+	}
 
-	void showDocInfor() {
-
-		double avg = 0.0;
-
+	private void getDocStatistic() {
 		for(int i=0; i<docs.size(); i++) {
-			avg += docs.get(i).dictionary.size();
-		}
+			int curSize = docs.get(i).dictionary.size();
+			avg += curSize;
 
-		System.out.println("문서의 수 : " + docs.size());
-		System.out.println("문서 당 평균 단어 수 : " + avg/docs.size());
-		System.out.println("최대 단어의 문서 : " );
-		System.out.println("최소 단어의 문서 : " );
+			if(curSize < minNum) {
+				minDocID = i;
+				minNum = curSize;
+			}
+
+			if(curSize > maxNum) {
+				maxDocID = i;
+				maxNum = curSize;
+			}
+		}
 	}
 
 
-	void makeDic() {
+	private void makeDic() {
 		for(int i=0; i<docs.size(); i++) {
 			Document curDoc = docs.get(i);
 
@@ -82,7 +201,7 @@ class Program {
 		}
 	}
 
-	LinkedList<String> adjustVocas(LinkedList<String> contentVocas) {
+	private LinkedList<String> adjustVocas(LinkedList<String> contentVocas) {
 
 		boolean digitPrivi = false;
 
