@@ -6,6 +6,7 @@ class HCI {
 	
 	private Scanner in = new Scanner(System.in);
 	private HashMap<String, LinkedList<Integer>> posts;
+	private LinkedList<Integer> temp;
 	private LinkedList<Document> docs;
 	private int minNum;
 	private int maxNum;
@@ -66,6 +67,7 @@ class HCI {
 		
 		LinkedList<Integer> tempList = new LinkedList<>();
 		String searchWord = in.nextLine();
+		temp = new LinkedList<>();
 
 		if(posts.containsKey(searchWord)) {
 			System.out.println("The Searching Result is...");
@@ -74,7 +76,9 @@ class HCI {
 
 			System.out.print(tempList.size() + " found, " + searchWord + " : ");
 			for(int i=0; i<tempList.size(); i++) {
-				System.out.print(tempList.get(i) + " ");
+				int curNum = tempList.get(i);
+				System.out.print(curNum + " ");
+				temp.add(curNum);
 				if(i!=0 && i%30 == 0) System.out.println();
 			}
 			System.out.println();
@@ -84,16 +88,26 @@ class HCI {
 				int choice = in.nextInt(); in.nextLine();
 				if(choice == -1)
 					break;
+				
+				boolean find = false;
 				if(choice < docs.size() && choice >= 0) {
-					showDoc(choice);
+					for(int i=0; i<temp.size(); i++) {
+						if(choice == temp.get(i)) {
+							find = true;
+							break;
+						}
+					}
+					if(find) showDoc(choice);
+					else System.out.println("It don't have '" + searchWord + "'!!");
 				}
+				
 				else {
 					System.out.println("Wrong docID...");
 				}
 			}
 		}
 
-		else { System.out.println("Nothing found in Result"); }
+		else { System.out.println("None"); }
 
 	}
 
