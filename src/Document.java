@@ -2,7 +2,7 @@ import java.util.TreeSet;
 
 class Document {
 	
-	TreeSet <String> dictionary;
+	TreeSet <String> dictionary; //use treeset for dictionary
 	String pageName;
 	private String contents;
 	int docID;

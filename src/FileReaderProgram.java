@@ -10,7 +10,6 @@ class FileReaderProgram {
 	
 	public FileReaderProgram(LinkedList<Document> docs) {
 		this.docs = docs;
-		
 	}
 	
 	void execute() {
@@ -33,6 +32,10 @@ class FileReaderProgram {
 	}
 
 	String saveFileContents(File curFile) {
+		
+		/**
+		 * Divide the file into documents according to <DOC>.
+		 */
 		
 		String fileLine = "";
 		String curBulletinName = "";
@@ -77,6 +80,10 @@ class FileReaderProgram {
 	}
 	
 	String adjustLine(String curLine) {
+		
+		/**
+		 * remove Tags
+		 */
 		
 		int start = 0;
 		int end = 0;

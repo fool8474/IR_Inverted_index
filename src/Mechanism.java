@@ -9,7 +9,7 @@ class Mechanism {
 	Iterator<?> docsItr = null;
 	LinkedList<Document> docs = new LinkedList<>(); 
 	LinkedList<Integer> tempList = null;
-	HashMap<String, LinkedList<Integer>> posts = new HashMap<>();
+	HashMap<String, LinkedList<Integer>> posts = new HashMap<>(); //use hashMap for postings list
 	FileReaderProgram reader = new FileReaderProgram(docs);
 	TreeSet<String> allVocas = new TreeSet<>();
 	
@@ -23,17 +23,24 @@ class Mechanism {
 	
 	public void programExecute() {
 		
-		reader.execute();
-		makeDic();
+		reader.execute(); //read file
+		makeDic(); //make dic and postings lists
 		getDocStatistic();
 
-		HCI programHCI = new HCI(posts, docs);
+		showAllWords();
+		
+		HCI programHCI = new HCI(posts, docs); //doing search progress
 		programHCI.setHCINums(minNum, maxNum, minDocID, maxDocID, avg);
 		programHCI.HCIMap();
+		
 		
 	}
 	
 	private void showAllWords() {
+		
+		/**
+		 * Method showing words stored in the dic (test method)
+		 */
 		
 		Iterator<String> itr = allVocas.iterator();
 		int count = 0;
@@ -50,6 +57,7 @@ class Mechanism {
 	}
 
 	private void getDocStatistic() {
+		
 		for(int i=0; i<docs.size(); i++) {
 			int curSize = docs.get(i).dictionary.size();
 			avg += curSize;
@@ -72,20 +80,21 @@ class Mechanism {
 
 			String[] tempVocas = curDoc.getContents().split
 					("\\*|\\-\\-|\\_|\\;|\\:|\\'|\\?|\"|\\.\\.|\\[|\\]|\\{|\\}|\\(|\\)|\\.\n| |\\, |\n|!");
-
+			// I divided the words into [ * -- _ ; : ' ? " .. [ ] { } ( ) .\n , \n ! and ' '
+			
 			LinkedList<String> contentVocas = new LinkedList<>();
 
 			for(int j=0; j<tempVocas.length; j++) {
 				contentVocas.add(tempVocas[j]);
 			}
 
-			adjustVocas(contentVocas);
+			adjustVocas(contentVocas); // to adjust words
 
 
 			for(int j=0; j<contentVocas.size(); j++) {
 
 				String curString = contentVocas.get(j);
-				curDoc.dictionary.add(curString);
+				curDoc.dictionary.add(curString); // save in dic (treeset)
 				allVocas.add(curString);
 			}
 
@@ -93,7 +102,7 @@ class Mechanism {
 
 			while(docsItr.hasNext()) {
 				String curString = (String)docsItr.next();
-
+				
 				if(posts.containsKey(curString)) {
 					tempList = posts.get(curString);
 					tempList.add(curDoc.docID);
@@ -104,12 +113,19 @@ class Mechanism {
 					tempList.add(curDoc.docID);
 					posts.put(curString, tempList);
 				}
+				
+				// make postings list (hashMap)
+				
 			}
 		}
 	}
 
 	private LinkedList<String> adjustVocas(LinkedList<String> contentVocas) {
 
+		/**
+		 * Adjust words through some rules.
+		 */
+		
 		boolean digitPrivi = false;
 
 		for(int i=0; i<contentVocas.size(); i++) {
@@ -123,7 +139,7 @@ class Mechanism {
 				if(Character.isUpperCase(curChar)) {
 					curString = curString.replace(curChar, Character.toLowerCase(curChar));
 					curChar = Character.toLowerCase(curChar);
-				}
+				} // Integrate UpperCase into LowerCase
 				
 				if(curChar == '.' || curChar == '/') {
 					if(j == curString.length()-1) {
@@ -133,8 +149,8 @@ class Mechanism {
 					else if(j == 0 && curString.length() != 1) {
 						curString = curString.substring(1, curString.length());
 						j--; continue;
-					}
-				}
+					} 
+				} // remove . or / in case ~~. .~~ ~~/ /~~
 
 				if(curChar == ',') {
 					if(digitPrivi && j != curString.length()-1 && Character.isDigit(curString.charAt(j+1))) {
@@ -147,19 +163,21 @@ class Mechanism {
 						curString = curString.substring(0, j);
 						j--; continue;
 					}
-				}
+				} // remove ',' in case [3,000 >> 3000], remove ',' and divide into two letters [car,bike >> car bike]
+				
 
 				if(curChar == '/' && 
 						j != curString.length()-1) {
 					if(!digitPrivi || !Character.isDigit(curString.charAt(j+1))) {
-						curString = curString.substring(0, j) + curString.substring(j+1, curString.length());
+						contentVocas.add(curString.substring(j+1, curString.length()));
+						curString = curString.substring(0,j);
 						j--; continue;
 					}
 					else {
 						String[] slashDivided = curString.split("\\/");
 						for(int k=0; k<slashDivided.length; k++)	contentVocas.add(slashDivided[k]);
 					}
-				}
+				} //remove / and divide into two letters and save the original [2007/08 >> 2007 08 2007/08, yukon/denali >> yukon denali] 
 
 				digitPrivi = Character.isDigit(curChar);
 			}
@@ -168,7 +186,7 @@ class Mechanism {
 				contentVocas.remove(i);
 				i--;
 				continue;
-			}
+			} //remove ''
 
 			contentVocas.set(i, curString);
 		}
