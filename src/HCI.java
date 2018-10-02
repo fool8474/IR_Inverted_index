@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 class HCI {
 	
+	private Mechanism tempProgram = new Mechanism();
 	private Scanner in = new Scanner(System.in);
 	private HashMap<String, LinkedList<Integer>> posts;
 	private LinkedList<Integer> temp;
@@ -66,15 +67,16 @@ class HCI {
 		menu(2);
 		
 		LinkedList<Integer> tempList = new LinkedList<>();
-		String searchWord = in.nextLine();
+		String beforeSearchWord = in.nextLine();
+		String searchWord = tempProgram.toLowerCase(beforeSearchWord);
 		temp = new LinkedList<>();
-
+		
 		if(posts.containsKey(searchWord)) {
 			System.out.println("The Searching Result is...");
 
 			tempList = posts.get(searchWord);
 
-			System.out.print(tempList.size() + " found, " + searchWord + " : ");
+			System.out.print(tempList.size() + " found, " + beforeSearchWord + " : ");
 			for(int i=0; i<tempList.size(); i++) {
 				int curNum = tempList.get(i);
 				System.out.print(curNum + " ");
@@ -98,7 +100,7 @@ class HCI {
 						}
 					}
 					if(find) showDoc(choice);
-					else System.out.println("It don't have '" + searchWord + "'!!");
+					else System.out.println("It don't have '" + beforeSearchWord + "'!!");
 				}
 				
 				else {

@@ -27,11 +27,10 @@ class Mechanism {
 		makeDic(); //make dic and postings lists
 		getDocStatistic();
 
+		//showAllWords();
 		HCI programHCI = new HCI(posts, docs); //doing search progress
 		programHCI.setHCINums(minNum, maxNum, minDocID, maxDocID, avg);
 		programHCI.HCIMap();
-		
-		
 	}
 	
 	private void showAllWords() {
@@ -118,6 +117,20 @@ class Mechanism {
 		}
 	}
 
+	public String toLowerCase(String curString) {
+		
+		for(int i=0; i<curString.length(); i++) {
+			char curChar = curString.charAt(i);
+			
+			if(Character.isUpperCase(curChar)) {
+				curString = curString.replace(curChar, Character.toLowerCase(curChar));
+				curChar = Character.toLowerCase(curChar);
+			}
+		}
+		
+		return curString;
+	}
+	
 	private LinkedList<String> adjustVocas(LinkedList<String> contentVocas) {
 
 		/**
@@ -130,14 +143,11 @@ class Mechanism {
 
 			String curString = contentVocas.get(i);
 
+			curString = toLowerCase(curString);
+			
 			for(int j=0; j<curString.length(); j++) {
 
 				char curChar = curString.charAt(j);
-
-				if(Character.isUpperCase(curChar)) {
-					curString = curString.replace(curChar, Character.toLowerCase(curChar));
-					curChar = Character.toLowerCase(curChar);
-				} // Integrate UpperCase into LowerCase
 				
 				if(curChar == '.' || curChar == '/') {
 					if(j == curString.length()-1) {
@@ -161,21 +171,25 @@ class Mechanism {
 						curString = curString.substring(0, j);
 						j--; continue;
 					}
-				} // remove ',' in case [3,000 >> 3000], remove ',' and divide into two letters [car,bike >> car bike]
+				} // remove ',' in case digit [3,000 >> 3000], remove ',' and divide into two letters (not digit) [car,bike >> car bike]
 				
 
-				if(curChar == '/' && 
+				if((curChar == '/' || curChar == '-' || curChar == '.') && 
 						j != curString.length()-1) {
-					if(!digitPrivi || !Character.isDigit(curString.charAt(j+1))) {
-						contentVocas.add(curString.substring(j+1, curString.length()));
-						curString = curString.substring(0,j);
-						j--; continue;
+
+						String[] dividedWord = new String[0];
+					switch(curChar) {
+					case('/') :
+						dividedWord = curString.split("\\/"); break;
+					case('-') :
+						dividedWord = curString.split("\\-"); break;
+					case('.') :
+						dividedWord = curString.split("\\."); break;
 					}
-					else {
-						String[] slashDivided = curString.split("\\/");
-						for(int k=0; k<slashDivided.length; k++)	contentVocas.add(slashDivided[k]);
-					}
-				} //remove / and divide into two letters and save the original [2007/08 >> 2007 08 2007/08, yukon/denali >> yukon denali] 
+					
+					for(int k=0; k<dividedWord.length; k++)	contentVocas.add(dividedWord[k]);
+					
+				} //remove word and divide into two letters and save the original [2007/08 >> 2007 08 2007/08, yukon/denali >> yukon denali yukon/denali]
 
 				digitPrivi = Character.isDigit(curChar);
 			}
